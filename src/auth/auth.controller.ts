@@ -14,7 +14,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async me(@Request() req: any) {
-    return req.user as UserEntity;
+    return req.user as UserEntity; // FIXME: use Dto or something like that
   }
 
   @Post('login')
