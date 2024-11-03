@@ -2,18 +2,21 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule, TypeOrmModuleOptions } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import config from './config/configuration';
+import { AuthModule } from './auth/auth.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [config]
+      envFilePath: '.env',
+      load: [config],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         type: configService.get<TypeOrmModuleOptions>('database.type', {
-          infer: true
+          infer: true,
         }),
         host: configService.get<string>('database.host'),
         port: configService.get<string>('database.port'),
@@ -26,6 +29,8 @@ import config from './config/configuration';
       }),
       inject: [ConfigService],
     }),
+    AuthModule,
+    UsersModule,
   ],
 })
 export class AppModule {}
