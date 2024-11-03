@@ -8,6 +8,8 @@ export default () => ({
         pass: process.env.DB_PASS,
         name: process.env.DB_NAME,
     },
-    jwtSecret: process.env.JWT_SECRET,
-    jwtExpiresIn: process.env.JWT_EXPIRES_IN,
+    jwt: {
+        secret: process.env.JWT_SECRET,
+        expiresIn: process.env.JWT_EXPIRES_IN,
+    }
 })
