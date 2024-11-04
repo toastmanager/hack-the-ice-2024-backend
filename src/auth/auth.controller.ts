@@ -1,6 +1,6 @@
 import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { UserEntity } from 'src/users/entities/user.entity';
-import { AuthService } from './auth.service';
+import { AuthService, Token } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
@@ -18,17 +18,17 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() user: LoginDto) {
+  async login(@Body() user: LoginDto): Promise<Token> {
     return await this.authService.login(user.email, user.password);
   }
 
   @Post('register')
-  async register(@Body() user: CreateUserDto) {
+  async register(@Body() user: CreateUserDto): Promise<Token> {
     return await this.authService.register(user);
   }
 
   @Post('logout')
-  async logout(@Request() req) {
+  async logout(@Request() req: any): Promise<void> {
     return req.logout();
   }
 }

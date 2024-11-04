@@ -34,7 +34,7 @@ export class AuthService {
     return null;
   }
 
-  async register(input: UserCreateInput) {
+  async register(input: UserCreateInput): Promise<Token> {
     try {
       const user = await this.usersService.create(input);
       return this.createToken(user);
@@ -44,7 +44,7 @@ export class AuthService {
     }
   }
 
-  async login(email: string, password: string) {
+  async login(email: string, password: string): Promise<Token> {
     const user = await this.usersService.findByEmail(email);
     if (user == undefined || user.password != password) {
       throw new HttpException(
