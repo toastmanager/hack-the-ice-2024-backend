@@ -5,6 +5,7 @@ import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
+import { TokenRefreshDto } from './dto/token-refresh.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -30,5 +31,10 @@ export class AuthController {
   @Post('logout')
   async logout(@Request() req: any): Promise<void> {
     return req.logout();
+  }
+
+  @Post('refresh')
+  async refresh(@Body() body: TokenRefreshDto): Promise<Token> {
+    return await this.authService.refreshToken(body.refresh_token);
   }
 }

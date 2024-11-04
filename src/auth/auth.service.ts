@@ -3,6 +3,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UserCreateInput, UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
@@ -13,6 +14,8 @@ import {
 } from './auth-utils';
 import { ConfigService } from '@nestjs/config';
 import { UserEntity } from 'src/users/entities/user.entity';
+import * as crypto from 'crypto';
+import { IssuedTokenService } from './issued-token/issued-token.service';
 
 export type Token = {
   access_token: string;
@@ -26,6 +29,7 @@ export class AuthService {
     private usersService: UsersService,
     private jwtService: JwtService,
     private configService: ConfigService,
+    private issuedTokenService: IssuedTokenService,
   ) {}
 
   async validateUser(email: string, password: string): Promise<any> {
@@ -45,7 +49,6 @@ export class AuthService {
       const user = await this.usersService.create(input);
       return await this.createToken(user);
     } catch (err) {
-      console.log(err);
       throw new ForbiddenException('Failed to register user');
     }
   }
@@ -59,6 +62,24 @@ export class AuthService {
       );
     }
     return await this.createToken(user);
+  }
+
+  async refreshToken(refreshToken: string): Promise<Token> {
+    try {
+      const payload = await this.jwtService.verifyAsync(refreshToken);
+
+      const tokenInIssuedTable = await this.issuedTokenService.findByTokenId(
+        payload.jti,
+      );
+      if (tokenInIssuedTable != undefined) {
+        throw new UnauthorizedException('invalid token');
+      }
+      await this.issuedTokenService.create(payload.jti);
+
+      return this.createToken(payload);
+    } catch (error) {
+      throw new UnauthorizedException();
+    }
   }
 
   async createToken(user: UserEntity): Promise<Token> {
@@ -83,8 +104,15 @@ export class AuthService {
       email: user.email,
       sub: user.id,
     };
+    let newUUUID = crypto.randomUUID();
+    while (
+      (await this.issuedTokenService.findByTokenId(newUUUID)) != undefined
+    ) {
+      newUUUID = crypto.randomUUID();
+    }
     return await this.jwtService.signAsync(payload, {
       expiresIn: this.configService.get('jwt.refreshTokenExpiresIn'),
+      jwtid: crypto.randomUUID(),
     });
   }
 }
