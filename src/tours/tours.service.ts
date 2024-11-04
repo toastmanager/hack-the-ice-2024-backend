@@ -24,4 +24,14 @@ export class ToursService {
     await this.toursRepository.remove(tourToDelete);
 
   }
+  async update(uuid: string, newName: string, newDescription: string): Promise<TourEntity> {
+    const tourToUpdate = await this.toursRepository.findOne({ where: { uuid: uuid } });
+    if (!tourToUpdate) {
+      throw new Error(`Tour with UUID ${uuid} not found`);
+    }
+    tourToUpdate.name = newName;
+    tourToUpdate.description = newDescription;
+    return this.toursRepository.save(tourToUpdate);
+  }
+  
 }

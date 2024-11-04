@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Delete, } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Put} from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { TourEntity } from './entities/tours.entity';
 import { CreateTourDto } from './dto/create-tour.dto'
@@ -23,7 +23,16 @@ export class ToursController {
       return { message: 'Tour deleted successfully' };
     
   }
-
+  
+  @Put(':uuid')
+  async update(
+    @Param('uuid') uuid: string,
+    @Body() updateTourDto: CreateTourDto
+  ): Promise<TourEntity> {
+    const { name, description } = updateTourDto;
+    return this.toursService.update(uuid, name, description);
+  
+  }
 
 
 
