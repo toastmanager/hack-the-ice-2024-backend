@@ -1,0 +1,17 @@
+FROM node:23-alpine
+
+WORKDIR /app
+
+COPY . .
+
+RUN corepack enable && corepack prepare pnpm@latest --activate
+
+RUN pnpm install
+
+RUN pnpm run build
+
+RUN rm -rf /src
+
+EXPOSE 3000
+
+CMD [ "pnpm", "run", "start:prod" ]
