@@ -49,7 +49,6 @@ export class AuthService {
       const user = await this.usersService.create(input);
       return await this.createToken(user);
     } catch (err) {
-      console.log(err);
       throw new ForbiddenException('Failed to register user');
     }
   }
