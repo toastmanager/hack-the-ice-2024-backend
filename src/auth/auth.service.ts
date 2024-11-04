@@ -4,34 +4,40 @@ import {
   HttpStatus,
   Injectable,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UserCreateInput, UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { CreateUserDto } from 'src/users/dto/create-user.dto';
+import { createTokenObject } from './auth-utils';
+import { ConfigService } from '@nestjs/config';
+import { UserEntity } from 'src/users/entities/user.entity';
+
+export type Token = {
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+};
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private configService: ConfigService,
   ) {}
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && user.password === pass) { // FIXME: Hash password using bcrypt or something
+    if (user && user.password === pass) {
+      // FIXME: Hash password using bcrypt or something
       const { password, ...result } = user;
       return result;
     }
     return null;
   }
 
-  async register(userData: CreateUserDto) { // FIXME: Don't use external libraries in buisiness-logic
+  async register(input: UserCreateInput) {
     try {
-      const user = await this.usersService.create(userData);
-
-      return { // TODO: Make separate function to return this map
-        access_token: this.jwtService.sign({ id: user.id }),
-        token_type: 'Bearer',
-      };
+      const user = await this.usersService.create(input);
+      return this.createToken(user);
     } catch (err) {
       console.log(err);
       throw new ForbiddenException('Failed to register user');
@@ -46,10 +52,33 @@ export class AuthService {
         HttpStatus.UNAUTHORIZED,
       );
     }
-    const payload = { username: user.username, sub: user.id };
-    return { // TODO: Make separate function to return this map
-      access_token: this.jwtService.sign(payload),
-      token_type: 'Bearer',
+    return this.createToken(user);
+  }
+
+  createToken(user: UserEntity): Token {
+    return createTokenObject(
+      this.createAccessToken(user),
+      this.createRefreshToken(user),
+    );
+  }
+
+  createAccessToken(user: UserEntity): string {
+    const payload = {
+      username: user.username,
+      email: user.email,
+      sub: user.id,
     };
+    return this.jwtService.sign(payload);
+  }
+
+  createRefreshToken(user: UserEntity): string {
+    const payload = {
+      username: user.username,
+      email: user.email,
+      sub: user.id,
+    };
+    return this.jwtService.sign(payload, {
+      expiresIn: this.configService.get('jwt.refreshTokenExpiresIn'),
+    });
   }
 }

@@ -3,7 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { CreateUserDto } from './dto/create-user.dto';
+
+export type UserCreateInput = { email: string; password: string };
 
 @Injectable()
 export class UsersService {
@@ -31,12 +32,11 @@ export class UsersService {
     await this.usersRepository.update({ id }, user);
   }
 
-  // FIXME: Don't use external libraries in buisiness-logic
-  async create(userData: CreateUserDto): Promise<UserEntity> {
-    const user = await this.findByEmail(userData.email);
+  async create(input: UserCreateInput): Promise<UserEntity> {
+    const user = await this.findByEmail(input.email);
     if (user != undefined) {
       throw new ForbiddenException('');
     }
-    return await this.usersRepository.save(userData);
+    return await this.usersRepository.save(input);
   }
 }
