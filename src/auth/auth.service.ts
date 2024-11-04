@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { UserCreateInput, UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { createTokenObject } from './auth-utils';
+import {
+  comparePasswords,
+  createTokenObject,
+  encodePassword,
+} from './auth-utils';
 import { ConfigService } from '@nestjs/config';
 import { UserEntity } from 'src/users/entities/user.entity';
 
@@ -24,20 +28,22 @@ export class AuthService {
     private configService: ConfigService,
   ) {}
 
-  async validateUser(email: string, pass: string): Promise<any> {
+  async validateUser(email: string, password: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && user.password === pass) {
-      // FIXME: Hash password using bcrypt or something
+
+    if (user && (await comparePasswords(password, user.password))) {
       const { password, ...result } = user;
       return result;
     }
+
     return null;
   }
 
   async register(input: UserCreateInput): Promise<Token> {
     try {
+      input.password = await encodePassword(input.password);
       const user = await this.usersService.create(input);
-      return this.createToken(user);
+      return await this.createToken(user);
     } catch (err) {
       console.log(err);
       throw new ForbiddenException('Failed to register user');
@@ -46,38 +52,38 @@ export class AuthService {
 
   async login(email: string, password: string): Promise<Token> {
     const user = await this.usersService.findByEmail(email);
-    if (user == undefined || user.password != password) {
+    if ((await this.validateUser(email, password)) == null) {
       throw new HttpException(
         'Wrong password or email',
         HttpStatus.UNAUTHORIZED,
       );
     }
-    return this.createToken(user);
+    return await this.createToken(user);
   }
 
-  createToken(user: UserEntity): Token {
+  async createToken(user: UserEntity): Promise<Token> {
     return createTokenObject(
-      this.createAccessToken(user),
-      this.createRefreshToken(user),
+      await this.createAccessToken(user),
+      await this.createRefreshToken(user),
     );
   }
 
-  createAccessToken(user: UserEntity): string {
+  async createAccessToken(user: UserEntity): Promise<string> {
     const payload = {
       username: user.username,
       email: user.email,
       sub: user.id,
     };
-    return this.jwtService.sign(payload);
+    return await this.jwtService.signAsync(payload);
   }
 
-  createRefreshToken(user: UserEntity): string {
+  async createRefreshToken(user: UserEntity): Promise<string> {
     const payload = {
       username: user.username,
       email: user.email,
       sub: user.id,
     };
-    return this.jwtService.sign(payload, {
+    return await this.jwtService.signAsync(payload, {
       expiresIn: this.configService.get('jwt.refreshTokenExpiresIn'),
     });
   }
