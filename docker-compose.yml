@@ -1,0 +1,75 @@
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.prod
+    labels:
+      - traefik.enable=true
+      - traefik.http.routers.server.rule=(Host(`${HOST}`))
+      - traefik.http.services.server.loadbalancer.server.port=8000
+      - traefik.http.routers.backend.entrypoints=backend
+    env_file:
+      - .env
+    environment:
+      NODE_ENV: production
+      DB_HOST: db
+      PORT: 8000
+    deploy:
+      mode: replicas
+      replicas: 3
+      update_config:
+        parallelism: 2
+        delay: 10s
+        order: start-first
+        failure_action: rollback
+    depends_on:
+      reverse-proxy:
+        condition: service_started
+      db:
+        condition: service_healthy
+
+  db:
+    image: postgres
+    restart: always
+    user: postgres
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    expose:
+      - 5432
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  pg_admin:
+    image: dpage/pgadmin4
+    restart: always
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PG_ADMIN_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PG_ADMIN_PASSWORD}
+    ports:
+      - 127.0.0.1:5050:80
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    
+
+  reverse-proxy:
+    image: traefik
+    command:
+      --api.insecure=true
+      --providers.docker=true
+      --entrypoints.backend.address=:8000
+    ports:
+      - "8000:8000"
+      - "8080:8080"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+volumes:
+  db-data:
+  pgadmin-data:
