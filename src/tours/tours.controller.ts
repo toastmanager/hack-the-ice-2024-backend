@@ -14,6 +14,7 @@ import { TourEntity } from './entities/tours.entity';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UpdateTourDto } from './dto/update-tour.dto';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 @Controller('tours')
 export class ToursController {
@@ -25,6 +26,7 @@ export class ToursController {
 
   @Post('create')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async create(
     @Body() createTourDto: CreateTourDto,
     @Request() req: any,
@@ -34,6 +36,7 @@ export class ToursController {
 
   @Delete(':uuid')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async delete(
     @Param('uuid') uuid: string,
     @Request() req: any,
@@ -44,6 +47,7 @@ export class ToursController {
 
   @Patch(':uuid')
   @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
   async update(
     @Param('uuid') uuid: string,
     @Body() updateTourDto: UpdateTourDto,
