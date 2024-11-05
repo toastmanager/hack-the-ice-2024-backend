@@ -1,6 +1,5 @@
 import { Controller, Get, NotFoundException, Param } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { ViewUserDto } from './dto/view-user.dto';
 
 @Controller('users')
 export class UsersController {

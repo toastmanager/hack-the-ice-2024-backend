@@ -21,7 +21,10 @@ export class UserEntity {
   password: string;
 
   @Column()
-  username: string;
+  fullname: string;
+
+  @Column({ default: false })
+  is_verified: boolean;
 
   @CreateDateColumn()
   created_at: Date;

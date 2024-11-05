@@ -91,7 +91,7 @@ export class AuthService {
 
   async createAccessToken(user: UserEntity): Promise<string> {
     const payload = {
-      username: user.username,
+      username: user.fullname,
       email: user.email,
       sub: user.id,
     };
@@ -100,7 +100,7 @@ export class AuthService {
 
   async createRefreshToken(user: UserEntity): Promise<string> {
     const payload = {
-      username: user.username,
+      username: user.fullname,
       email: user.email,
       sub: user.id,
     };

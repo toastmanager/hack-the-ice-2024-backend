@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ViewUserDto } from './view-user.dto';
+import { BaseUserDto } from './base-user.dto';
 
-export class CreateUserDto extends ViewUserDto {
+export class CreateUserDto extends BaseUserDto {
   @ApiProperty({
     default: 'password1234',
   })
