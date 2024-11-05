@@ -1,7 +1,20 @@
-import { Controller, Get, Post, Body, Param, Delete, Put} from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Delete,
+  Request,
+  Patch,
+  UseGuards,
+} from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { TourEntity } from './entities/tours.entity';
-import { CreateTourDto } from './dto/create-tour.dto'
+import { CreateTourDto } from './dto/create-tour.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
+import { UpdateTourDto } from './dto/update-tour.dto';
+
 @Controller('tours')
 export class ToursController {
   constructor(private readonly toursService: ToursService) {}
@@ -9,31 +22,33 @@ export class ToursController {
   async findAll(): Promise<TourEntity[]> {
     return this.toursService.findAll();
   }
-  @Post('create')
 
-  async create(@Body() createTourDto: CreateTourDto): Promise<TourEntity> {
-    const { name, description } = createTourDto;
-    return this.toursService.create(name, description);
+  @Post('create')
+  @UseGuards(JwtAuthGuard)
+  async create(
+    @Body() createTourDto: CreateTourDto,
+    @Request() req: any,
+  ): Promise<TourEntity> {
+    return this.toursService.create(createTourDto, req.user.sub);
   }
 
   @Delete(':uuid')
-
-  async delete(@Param('uuid') uuid: string): Promise<{ message: string }> {
-      await this.toursService.delete(uuid);
-      return { message: 'Tour deleted successfully' };
-    
+  @UseGuards(JwtAuthGuard)
+  async delete(
+    @Param('uuid') uuid: string,
+    @Request() req: any,
+  ): Promise<{ message: string }> {
+    await this.toursService.delete(uuid, req.user.sub);
+    return { message: 'Tour deleted successfully' };
   }
-  
-  @Put(':uuid')
+
+  @Patch(':uuid')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('uuid') uuid: string,
-    @Body() updateTourDto: CreateTourDto
+    @Body() updateTourDto: UpdateTourDto,
+    @Request() req: any,
   ): Promise<TourEntity> {
-    const { name, description } = updateTourDto;
-    return this.toursService.update(uuid, name, description);
-  
+    return await this.toursService.patch(uuid, updateTourDto, req.user.sub);
   }
-
-
-
 }

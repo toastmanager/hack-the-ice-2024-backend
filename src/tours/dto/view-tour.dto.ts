@@ -1,13 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { CreateTourDto } from "./create-tour.dto";
+import { ViewUserDto } from "src/users/dto/view-user.dto";
 
-export class ViewTourDto {
+export class ViewTourDto extends CreateTourDto {
   @ApiProperty({
-    default: 'tourname',
+    default: '',
   })
-  name: string;
-
-  @ApiProperty({
-    default: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit',
-  })
-  description: string;
+  author: ViewUserDto;
 }
