@@ -14,11 +14,19 @@ export class UsersService {
   ) {}
 
   async findByEmail(email: string): Promise<UserEntity | undefined> {
-    return await this.usersRepository.findOneBy({ email });
+    return await this.usersRepository.findOne({
+      where: { email: email },
+      relations: {
+        tours: true,
+      },
+    });
   }
 
   async findById(id: string): Promise<UserEntity | undefined> {
-    return await this.usersRepository.findOneBy({ id });
+    return await this.usersRepository.findOne({
+      where: { id: id },
+      relations: { tours: true },
+    });
   }
 
   async delete(id: string): Promise<void> {
