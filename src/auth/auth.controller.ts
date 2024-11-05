@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Request, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Request,
+  Response,
+  UseGuards,
+} from '@nestjs/common';
 import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthService, Token } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
@@ -6,6 +13,7 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { TokenRefreshDto } from './dto/token-refresh.dto';
+import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
@@ -19,8 +27,15 @@ export class AuthController {
   }
 
   @Post('login')
-  async login(@Body() user: LoginDto): Promise<Token> {
-    return await this.authService.login(user.email, user.password);
+  async login(@Body() user: LoginDto, @Response() response): Promise<Token> {
+    const token = await this.authService.login(user.email, user.password);
+
+    await response.cookie('refresh_token', token.refresh_token, {
+      expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    });
+
+    return response.send(token);
   }
 
   @Post('register')
@@ -34,7 +49,14 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body() body: TokenRefreshDto): Promise<Token> {
+  async refresh(
+    @Request() request,
+    @Body() body: TokenRefreshDto,
+  ): Promise<Token> {
+    const cookieRefreshToken = request.cookie['refresh_token'];
+    if (cookieRefreshToken) {
+      return await this.authService.refreshToken(cookieRefreshToken);
+    }
     return await this.authService.refreshToken(body.refresh_token);
   }
 }
