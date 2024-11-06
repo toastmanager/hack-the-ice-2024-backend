@@ -14,16 +14,23 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { TokenRefreshDto } from './dto/token-refresh.dto';
+import { UsersService } from 'src/users/users.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersService: UsersService,
+  ) {}
 
   @Post('me')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async me(@Request() req: any) {
-    return req.user as UserEntity; // FIXME: use Dto or something like that
+    const { id } = req.user;
+    const { password, tours, tourReviews, ...user} = await this.usersService.findById(id);
+
+    return user;
   }
 
   @Post('login')
