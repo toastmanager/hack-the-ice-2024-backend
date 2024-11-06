@@ -14,7 +14,6 @@ import { JwtAuthGuard } from './guards/jwt.guard';
 import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { TokenRefreshDto } from './dto/token-refresh.dto';
-import { ConfigService } from '@nestjs/config';
 
 @Controller('auth')
 export class AuthController {
@@ -31,7 +30,7 @@ export class AuthController {
   async login(@Body() user: LoginDto, @Response() response): Promise<Token> {
     const token = await this.authService.login(user.email, user.password);
 
-    this.setRefreshTokenInCookie(response, token.refresh_token);
+    await this.setRefreshTokenInCookie(response, token.refresh_token);
 
     return response.send(token);
   }
@@ -54,9 +53,8 @@ export class AuthController {
   ): Promise<Token> {
     let newToken: Token | null = null;
 
-    console.log(request.cookie);
-    if (request.cookie) {
-      const cookieRefreshToken = request.cookie['refresh_token'];
+    if (request.cookies) {
+      const cookieRefreshToken = request.cookies['refresh_token'];
       if (cookieRefreshToken) {
         newToken = await this.authService.refreshToken(cookieRefreshToken);
       }
@@ -70,6 +68,8 @@ export class AuthController {
       throw new BadRequestException('Refresh token is not provided');
     }
 
+    await this.setRefreshTokenInCookie(response, newToken.refresh_token);
+
     return response.send(newToken);
   }
 
@@ -77,6 +77,7 @@ export class AuthController {
     await response.cookie('refresh_token', refreshToken, {
       expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
       httpOnly: true,
+      sameSite: 'strict',
     });
   }
 }

@@ -8,6 +8,15 @@ async function bootstrap() {
   const globalPrefix = 'api';
   app.setGlobalPrefix(globalPrefix);
 
+  app.enableCors({
+    credentials: true,
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:8000',
+      process.env.HOST,
+      process.env.FRONTEND_URL,
+    ],
+  });
   app.use(cookieParser());
 
   const config = new DocumentBuilder()

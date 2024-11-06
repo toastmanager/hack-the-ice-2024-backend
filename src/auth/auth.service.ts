@@ -72,13 +72,13 @@ export class AuthService {
         payload.jti,
       );
       if (tokenInIssuedTable != undefined) {
-        throw new UnauthorizedException('invalid token');
+        throw new ForbiddenException('invalid token');
       }
       await this.issuedTokenService.create(payload.jti);
 
       return this.createToken(payload);
     } catch (error) {
-      throw new UnauthorizedException();
+      throw error;
     }
   }
 
