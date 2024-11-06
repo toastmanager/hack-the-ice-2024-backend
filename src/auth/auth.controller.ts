@@ -7,7 +7,6 @@ import {
   Response,
   UseGuards,
 } from '@nestjs/common';
-import { UserEntity } from 'src/users/entities/user.entity';
 import { AuthService, Token } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
@@ -15,6 +14,12 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { TokenRefreshDto } from './dto/token-refresh.dto';
 import { UsersService } from 'src/users/users.service';
+
+const refreshTokenCookieOptions = {
+  expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+  httpOnly: true,
+  sameSite: 'strict',
+};
 
 @Controller('auth')
 export class AuthController {
@@ -28,7 +33,8 @@ export class AuthController {
   @ApiBearerAuth()
   async me(@Request() req: any) {
     const { id } = req.user;
-    const { password, tours, tourReviews, ...user} = await this.usersService.findById(id);
+    const { password, tours, tourReviews, ...user } =
+      await this.usersService.findById(id);
 
     return user;
   }
@@ -43,48 +49,66 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() user: CreateUserDto): Promise<Token> {
-    return await this.authService.register(user);
+  async register(
+    @Body() user: CreateUserDto,
+    @Response({ passthrough: true }) response: any,
+  ): Promise<Token> {
+    const token = await this.authService.register(user);
+
+    await this.setRefreshTokenInCookie(response, token.refresh_token);
+
+    return token;
   }
 
   @Post('logout')
-  async logout(@Request() req: any): Promise<void> {
-    return req.logout();
+  @ApiBearerAuth()
+  async logout(@Response({ passthrough: true }) res: any): Promise<any> {
+    await res.clearCookie('refresh_token', refreshTokenCookieOptions);
+    return { message: 'successfully logged out' };
   }
 
   @Post('refresh')
   async refresh(
     @Request() request,
     @Body() body: TokenRefreshDto,
-    @Response() response,
+    @Response({ passthrough: true }) response,
   ): Promise<Token> {
     let newToken: Token | null = null;
+
 
     if (request.cookies) {
       const cookieRefreshToken = request.cookies['refresh_token'];
       if (cookieRefreshToken) {
-        newToken = await this.authService.refreshToken(cookieRefreshToken);
+        try {
+          newToken = await this.authService.refreshToken(cookieRefreshToken);
+        } catch (error) {
+          console.log(error)
+          throw error;
+        }
+      }
+    } else if (body.refresh_token) {
+      try {
+        newToken = await this.authService.refreshToken(body.refresh_token);
+      } catch (error) {
+        console.log(error)
+        throw error;
       }
     }
 
-    if (body && body.refresh_token) {
-      newToken = await this.authService.refreshToken(body.refresh_token);
-    }
-
-    if (newToken === null) {
+    if (!newToken) {
       throw new BadRequestException('Refresh token is not provided');
     }
 
     await this.setRefreshTokenInCookie(response, newToken.refresh_token);
 
-    return response.send(newToken);
+    return newToken;
   }
 
   async setRefreshTokenInCookie(@Response() response, refreshToken: string) {
-    await response.cookie('refresh_token', refreshToken, {
-      expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
-      httpOnly: true,
-      sameSite: 'strict',
-    });
+    await response.cookie(
+      'refresh_token',
+      refreshToken,
+      refreshTokenCookieOptions,
+    );
   }
 }

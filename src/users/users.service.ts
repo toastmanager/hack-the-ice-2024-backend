@@ -3,8 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './entities/user.entity';
 import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-
-export type UserCreateInput = { email: string; password: string };
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -40,10 +39,10 @@ export class UsersService {
     await this.usersRepository.update({ id }, user);
   }
 
-  async create(input: UserCreateInput): Promise<UserEntity> {
+  async create(input: CreateUserDto): Promise<UserEntity> {
     const user = await this.findByEmail(input.email);
     if (user != undefined) {
-      throw new ForbiddenException('');
+      throw new ForbiddenException('User already exists');
     }
     return await this.usersRepository.save(input);
   }

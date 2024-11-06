@@ -9,6 +9,11 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 
+export enum UserType {
+  tourist = 'tourist',
+  author = 'author',
+}
+
 @Entity('users')
 export class UserEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -25,6 +30,19 @@ export class UserEntity {
 
   @Column({ default: false })
   is_verified: boolean;
+
+  @Column({
+    type: 'enum',
+    enum: UserType,
+    default: UserType.tourist,
+  })
+  type: UserType;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  phone: string;
 
   @CreateDateColumn()
   created_at: Date;

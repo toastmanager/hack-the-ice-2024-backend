@@ -1,11 +1,11 @@
 import {
+  BadRequestException,
   ForbiddenException,
   HttpException,
   HttpStatus,
   Injectable,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { UserCreateInput, UsersService } from '../users/users.service';
+import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import {
   comparePasswords,
@@ -13,9 +13,10 @@ import {
   encodePassword,
 } from './auth-utils';
 import { ConfigService } from '@nestjs/config';
-import { UserEntity } from 'src/users/entities/user.entity';
+import { UserEntity, UserType } from 'src/users/entities/user.entity';
 import * as crypto from 'crypto';
 import { IssuedTokenService } from './issued-token/issued-token.service';
+import { CreateUserDto } from 'src/users/dto/create-user.dto';
 
 export type Token = {
   access_token: string;
@@ -43,12 +44,20 @@ export class AuthService {
     return null;
   }
 
-  async register(input: UserCreateInput): Promise<Token> {
+  async register(input: CreateUserDto): Promise<Token> {
     try {
+      if (input.type == UserType.author && input.phone === '') {
+        throw new BadRequestException(
+          'User type is author but phone is not provided',
+        );
+      }
+
       input.password = await encodePassword(input.password);
       const user = await this.usersService.create(input);
+
       return await this.createToken(user);
     } catch (err) {
+      console.log(err);
       throw new ForbiddenException('Failed to register user');
     }
   }
@@ -91,18 +100,20 @@ export class AuthService {
 
   async createAccessToken(user: UserEntity): Promise<string> {
     const payload = {
-      username: user.fullname,
+      fullname: user.fullname,
       email: user.email,
-      sub: user.id,
+      id: user.id,
     };
-    return await this.jwtService.signAsync(payload);
+    return await this.jwtService.signAsync(payload, {
+      subject: user.id,
+    });
   }
 
   async createRefreshToken(user: UserEntity): Promise<string> {
     const payload = {
-      username: user.fullname,
+      fullname: user.fullname,
       email: user.email,
-      sub: user.id,
+      id: user.id,
     };
     let newUUUID = crypto.randomUUID();
     while (
@@ -113,6 +124,7 @@ export class AuthService {
     return await this.jwtService.signAsync(payload, {
       expiresIn: this.configService.get('jwt.refreshTokenExpiresIn'),
       jwtid: crypto.randomUUID(),
+      subject: user.id,
     });
   }
 }
