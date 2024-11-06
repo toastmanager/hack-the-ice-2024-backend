@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Post,
@@ -30,10 +31,7 @@ export class AuthController {
   async login(@Body() user: LoginDto, @Response() response): Promise<Token> {
     const token = await this.authService.login(user.email, user.password);
 
-    await response.cookie('refresh_token', token.refresh_token, {
-      expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
-      httpOnly: true,
-    });
+    this.setRefreshTokenInCookie(response, token.refresh_token);
 
     return response.send(token);
   }
@@ -52,11 +50,33 @@ export class AuthController {
   async refresh(
     @Request() request,
     @Body() body: TokenRefreshDto,
+    @Response() response,
   ): Promise<Token> {
-    const cookieRefreshToken = request.cookie['refresh_token'];
-    if (cookieRefreshToken) {
-      return await this.authService.refreshToken(cookieRefreshToken);
+    let newToken: Token | null = null;
+
+    console.log(request.cookie);
+    if (request.cookie) {
+      const cookieRefreshToken = request.cookie['refresh_token'];
+      if (cookieRefreshToken) {
+        newToken = await this.authService.refreshToken(cookieRefreshToken);
+      }
     }
-    return await this.authService.refreshToken(body.refresh_token);
+
+    if (body && body.refresh_token) {
+      newToken = await this.authService.refreshToken(body.refresh_token);
+    }
+
+    if (newToken === null) {
+      throw new BadRequestException('Refresh token is not provided');
+    }
+
+    return response.send(newToken);
+  }
+
+  async setRefreshTokenInCookie(@Response() response, refreshToken: string) {
+    await response.cookie('refresh_token', refreshToken, {
+      expires: new Date(new Date().getTime() + 30 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    });
   }
 }
