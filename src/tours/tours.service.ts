@@ -78,8 +78,12 @@ export class ToursService {
       throw new ForbiddenException('Provided user is not author of this tour');
     }
 
-    //TODO: error handling
+    for (const imageKey of tourToDelete.image_keys) {
+      await this.storageService.delete(imageKey);
+    }
+
     await this.toursRepository.remove(tourToDelete);
+    return;
   }
 
   async patch(

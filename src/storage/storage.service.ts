@@ -1,6 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import {
+  DeleteObjectCommand,
   GetObjectCommand,
   PutObjectCommand,
   S3Client,
@@ -10,6 +11,11 @@ import { randomUUID } from 'crypto';
 
 @Injectable()
 export class StorageService {
+  constructor(
+    private readonly configService: ConfigService,
+    @Inject('BucketName') private bucketName: string,
+  ) {}
+
   private readonly s3Client = new S3Client({
     credentials: {
       accessKeyId: this.configService.getOrThrow<string>('s3.accessKeyId'),
@@ -21,11 +27,6 @@ export class StorageService {
       this.configService.getOrThrow<string>('s3.forcePathStyle') === 'true',
     region: this.configService.get<string>('s3.region'),
   });
-
-  constructor(
-    private readonly configService: ConfigService,
-    @Inject('BucketName') private bucketName: string,
-  ) {}
 
   async put(
     filename: string,
@@ -50,12 +51,39 @@ export class StorageService {
     }
   }
 
-  async get(imageKey: string): Promise<string> {
-    const command = new GetObjectCommand({
-      Bucket: this.bucketName,
-      Key: imageKey,
-    });
-    const url = await getSignedUrl(this.s3Client, command, { expiresIn: 3600 });
-    return url;
+  async get(objectKey: string, expiresIn?: number): Promise<string> {
+    try {
+      const command = new GetObjectCommand({
+        Bucket: this.bucketName,
+        Key: objectKey,
+      });
+      const url = await getSignedUrl(this.s3Client, command, {
+        expiresIn: expiresIn || 3600,
+      });
+      return url;
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async update(objectKey: string, file: Buffer): Promise<string> {
+    try {
+      return await this.put(objectKey, file, false);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async delete(objectKey: string): Promise<void> {
+    try {
+      const command = new DeleteObjectCommand({
+        Bucket: this.bucketName,
+        Key: objectKey,
+      });
+      await this.s3Client.send(command);
+      return;
+    } catch (error) {
+      throw error;
+    }
   }
 }
