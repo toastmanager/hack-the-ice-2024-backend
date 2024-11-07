@@ -9,9 +9,9 @@ export class AgeGroupEntity {
   @Column()
   min_age: number;
 
-  @Column()
+  @Column({ nullable: true })
   max_age: number;
 
   @ManyToMany(() => TourEntity, (tour) => tour.age_groups)
-  tours: TourEntity;
+  tours: TourEntity[];
 }

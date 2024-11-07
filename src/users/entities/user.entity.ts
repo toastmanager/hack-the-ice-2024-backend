@@ -22,10 +22,16 @@ export class UserEntity {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({
+    nullable: true,
+    default: null,
+  })
   avatarImageKey: string;
-  
-  @Column()
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
   description: string;
 
   @Column()

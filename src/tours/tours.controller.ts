@@ -14,11 +14,11 @@ import {
 import { ToursService } from './tours.service';
 import { TourEntity } from './entities/tours.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { UpdateTourDto } from './dto/tour/update-tour.dto';
 import { ApiBearerAuth, ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { CreateTourDto } from './dto/tour/create-tour.dto';
-import { TourViewDto } from './dto/tour/tour-view.dto';
+import { TourViewDto } from './dto/tour-view.dto';
+import { CreateTourDto } from './dto/create-tour.dto';
+import { UpdateTourDto } from './dto/update-tour.dto';
 
 @Controller('tours')
 export class ToursController {

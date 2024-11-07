@@ -6,13 +6,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TourEntity } from './entities/tours.entity';
-import { UpdateTourDto } from './dto/tour/update-tour.dto';
 import { UsersService } from 'src/users/users.service';
 import { StorageService } from 'src/storage/storage.service';
-import { ConfigService } from '@nestjs/config';
 import { ViewUserDto } from 'src/users/dto/view-user.dto';
-import { TourViewDto } from './dto/tour/tour-view.dto';
-import { CreateTourDto } from './dto/tour/create-tour.dto';
+import { TourViewDto } from './dto/tour-view.dto';
+import { CreateTourDto } from './dto/create-tour.dto';
+import { UpdateTourDto } from './dto/update-tour.dto';
+import { ResidenceService } from 'src/residence/residence.service';
 
 @Injectable()
 export class ToursService {
@@ -21,7 +21,7 @@ export class ToursService {
     private readonly toursRepository: Repository<TourEntity>,
     private readonly usersService: UsersService,
     private readonly storageService: StorageService,
-    private readonly configService: ConfigService,
+    private readonly residenceService: ResidenceService,
   ) {}
 
   async findAll(): Promise<TourEntity[]> {
@@ -61,7 +61,7 @@ export class ToursService {
     const viewUser: ViewUserDto = {
       fullname: author.fullname,
       type: author.type,
-    }
+    };
 
     return { image_urls: image_urls, author: viewUser, ...tourData };
   }
@@ -72,7 +72,9 @@ export class ToursService {
     author_uuid: string,
   ): Promise<TourEntity> {
     const author = await this.usersService.findById(author_uuid);
-    const { images: _, ...tourData } = createTourData;
+    const { images: _, residence_id, ...tourData } = createTourData;
+
+    const residence = await this.residenceService.findById(residence_id);
 
     const imageKeys = [];
     for (let img of images) {
@@ -86,6 +88,7 @@ export class ToursService {
     return await this.toursRepository.save({
       author: author,
       image_keys: imageKeys,
+      residencies: [residence],
       ...tourData,
     });
   }

@@ -3,7 +3,10 @@ import { TourBaseDto } from './tour-base.dto';
 
 export class CreateTourDto extends TourBaseDto {
   @ApiProperty({
-    format: 'binary'
+    format: 'binary',
   })
   images: Express.Multer.File[];
+
+  @ApiProperty({})
+  residence_id: number;
 }

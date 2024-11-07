@@ -10,5 +10,5 @@ export class LanguageEntity {
   name: string;
 
   @ManyToMany(() => TourEntity, (tour) => tour.languages)
-  tours: TourEntity;
+  tours: TourEntity[];
 }

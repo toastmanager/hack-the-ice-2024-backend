@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class TourResidenceBaseDto {
+export class ResidenceBaseDto {
     @ApiProperty()
     title: string;
 

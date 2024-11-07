@@ -39,12 +39,12 @@ export class TourBaseDto {
   @ApiProperty({
     default: 3
   })
-  motel_duration: number
+  motel_duration: string
 
   @ApiProperty({
     default: 3
   })
-  hotel_duration: number
+  hotel_duration: string
 
   @ApiProperty({
     default: 14999,

@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { TourResidence } from '../residence/entities/tour-residence.entity';
+import { Residence } from '../../residence/entities/residence.entity';
 import { AgeGroupEntity } from '../age-groups/entities/age-group.entity';
 import { LanguageEntity } from '../languages/entities/laguage.entity';
 
@@ -57,13 +57,13 @@ export class TourEntity {
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToMany(() => TourResidence, (residence) => residence.tours)
-  residencies: TourResidence[];
+  @ManyToMany(() => Residence, (residence) => residence.tours)
+  residencies: Residence[];
 
   @ManyToMany(() => AgeGroupEntity, (ageGroup) => ageGroup.tours, {
     nullable: false,
   })
-  age_groups: AgeGroupEntity;
+  age_groups: AgeGroupEntity[];
 
   @ManyToMany(() => LanguageEntity, (language) => language.tours, {
     nullable: false,

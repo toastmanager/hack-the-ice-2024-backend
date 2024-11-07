@@ -1,11 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { TourBaseDto } from "./tour-base.dto";
-import { TourResidenceViewDto } from "../residence/tour-residence-view.dto";
+import { ResidenceViewDto } from "../../residence/dto/residence-view.dto";
 
 export class TourDetailsViewDto extends TourBaseDto {
     @ApiProperty({})
-    residencies: TourResidenceViewDto[];
+    residencies: ResidenceViewDto[];
 
     @ApiProperty({})
-    age_groups: TourResidenceViewDto[];
+    age_groups: ResidenceViewDto[];
 }

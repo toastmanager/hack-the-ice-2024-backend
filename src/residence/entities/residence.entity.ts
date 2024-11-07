@@ -2,7 +2,7 @@ import { TourEntity } from 'src/tours/entities/tours.entity';
 import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
-export class TourResidence {
+export class Residence {
   @PrimaryGeneratedColumn()
   id: number;
 
