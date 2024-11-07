@@ -1,40 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { TourBaseDto } from './tour-base.dto';
 
-export class CreateTourDto {
+export class CreateTourDto extends TourBaseDto {
   @ApiProperty({
-    default: 'string',
+    format: 'binary',
   })
-  title: string;
+  images: Express.Multer.File[];
 
-  @ApiProperty({
-    default: 'string',
-  })
-  description: string;
+  @ApiProperty({})
+  residence_id: number;
 
-  @ApiProperty({
-    default: 'Бурятия',
-  })
-  location: string;
-
-  @ApiProperty({
-    default: 4,
-  })
-  days_duration: number;
-
-  @ApiProperty({
-    default: 14999,
-  })
-  price: number;
-
-  @ApiProperty({
-    description:
-      "null if tour don't have discount or else price should be provided",
-    nullable: true,
-  })
-  previous_price: number;
-
-  @ApiProperty({
-    required: false,
-  })
-  banner_url: string;
+  @ApiProperty({})
+  age_group_ids: number[];
 }

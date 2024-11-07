@@ -6,16 +6,23 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TourEntity } from './entities/tours.entity';
+import { UsersService } from 'src/users/users.service';
+import { StorageService } from 'src/storage/storage.service';
+import { ViewUserDto } from 'src/users/dto/view-user.dto';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
-import { UsersService } from 'src/users/users.service';
+import { ResidenceService } from 'src/residence/residence.service';
+import { TourDetailsViewDto } from './dto/tour-details-view.dto';
+import { AgeGroupViewDto } from './age-groups/dto/age-group-view.dto';
 
 @Injectable()
 export class ToursService {
   constructor(
     @InjectRepository(TourEntity)
-    private toursRepository: Repository<TourEntity>,
-    private usersService: UsersService,
+    private readonly toursRepository: Repository<TourEntity>,
+    private readonly usersService: UsersService,
+    private readonly storageService: StorageService,
+    private readonly residenceService: ResidenceService,
   ) {}
 
   async findAll(): Promise<TourEntity[]> {
@@ -26,20 +33,92 @@ export class ToursService {
     });
   }
 
+  async findById(id: string): Promise<TourEntity> {
+    return await this.toursRepository.findOne({
+      where: {
+        uuid: id,
+      },
+      relations: {
+        author: true,
+        residencies: true,
+        age_groups: true,
+      },
+    });
+  }
+
+  async getById(id: string): Promise<TourDetailsViewDto> {
+    const tour = await this.findById(id);
+
+    if (!tour) {
+      throw new NotFoundException('');
+    }
+
+    const { image_keys, author, residencies, age_groups, ...tourData } = tour;
+
+    const image_urls: string[] = [];
+    for (const imageKey of image_keys) {
+      const presignedUrl = await this.storageService.get(imageKey);
+      image_urls.push(presignedUrl);
+    }
+
+    const residenciesDtos = [];
+    for (const residency of [...residencies]) {
+      const residencyDto = await this.residenceService.getById(residency.id);
+      residenciesDtos.push(residencyDto);
+    }
+
+    const ageGroupDtos = [];
+    for (const ageGroup of [...age_groups]) {
+      const ageGroupDto: AgeGroupViewDto = { ...ageGroup };
+      residenciesDtos.push(ageGroupDto);
+    }
+
+    const viewUser: ViewUserDto = {
+      fullname: author.fullname,
+      type: author.type,
+    };
+
+    return {
+      image_urls: image_urls,
+      author: viewUser,
+      residencies: residenciesDtos,
+      age_groups: ageGroupDtos,
+      ...tourData,
+    };
+  }
+
   async create(
     createTourData: CreateTourDto,
+    images: Express.Multer.File[],
     author_uuid: string,
   ): Promise<TourEntity> {
     const author = await this.usersService.findById(author_uuid);
+    const { images: _, residence_id, ...tourData } = createTourData;
+
+    const residence = await this.residenceService.findById(residence_id);
+
+    const imageKeys = [];
+    for (let img of images) {
+      const imageKey = await this.storageService.put(
+        img.originalname,
+        img.buffer,
+      );
+      imageKeys.push(imageKey);
+    }
 
     return await this.toursRepository.save({
       author: author,
-      ...createTourData,
+      image_keys: imageKeys,
+      residencies: [residence,],
+      ...tourData,
     });
   }
 
   async delete(tourId: string, userId: string): Promise<void> {
-    const tourToDelete = await this.toursRepository.findOneBy({ uuid: tourId });
+    const tourToDelete = await this.toursRepository.findOne({
+      where: { uuid: tourId },
+      relations: { author: true },
+    });
 
     if (!tourId) {
       throw new NotFoundException('Tour not found');
@@ -48,8 +127,12 @@ export class ToursService {
       throw new ForbiddenException('Provided user is not author of this tour');
     }
 
-    //TODO: error handling
+    for (const imageKey of tourToDelete.image_keys) {
+      await this.storageService.delete(imageKey);
+    }
+
     await this.toursRepository.remove(tourToDelete);
+    return;
   }
 
   async patch(

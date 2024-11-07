@@ -1,10 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ViewTourDto } from 'src/tours/dto/view-tour.dto';
 import { BaseUserDto } from './base-user.dto';
 
 export class ViewUserDto extends BaseUserDto {
   @ApiProperty({
-    default: [],
+    required: false,
   })
-  tours: ViewTourDto[];
+  avatar_url?: string | null;
+
+  @ApiProperty({
+    required: false,
+  })
+  banner_url?: string | null;
 }

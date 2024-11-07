@@ -23,6 +23,18 @@ export class UserEntity extends BaseEntity {
   @Column({ unique: true })
   email: string;
 
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  avatarImageKey: string;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  description: string;
+
   @Column()
   password: string;
 

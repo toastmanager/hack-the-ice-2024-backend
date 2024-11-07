@@ -5,6 +5,8 @@ import config from './config/configuration';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ToursModule } from './tours/tours.module';
+import { StorageModule } from './storage/storage.module';
+import { ResidenceModule } from './residence/residence.module';
 import { DataSource } from 'typeorm';
 import { UserEntity } from './users/entities/user.entity';
 import { TourEntity } from './tours/entities/tours.entity';
@@ -61,6 +63,8 @@ import { TourReviewEntity } from './tours/entities/tour-review.entity';
     AuthModule,
     UsersModule,
     ToursModule,
+    StorageModule,
+    ResidenceModule,
   ],
 })
 export class AppModule {}
