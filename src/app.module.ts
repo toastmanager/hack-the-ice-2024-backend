@@ -11,6 +11,9 @@ import { DataSource } from 'typeorm';
 import { UserEntity } from './users/entities/user.entity';
 import { TourEntity } from './tours/entities/tours.entity';
 import { TourReviewEntity } from './tours/entities/tour-review.entity';
+import { Residence } from './residence/entities/residence.entity';
+import { AgeGroupEntity } from './tours/age-groups/entities/age-group.entity';
+import { LanguageEntity } from './tours/languages/entities/laguage.entity';
 
 @Module({
   imports: [
@@ -54,7 +57,14 @@ import { TourReviewEntity } from './tours/entities/tour-review.entity';
           return {
             adminJsOptions: {
               rootPath: '/admin',
-              resources: [UserEntity, TourEntity, TourReviewEntity],
+              resources: [
+                UserEntity,
+                TourEntity,
+                TourReviewEntity,
+                Residence,
+                AgeGroupEntity,
+                LanguageEntity,
+              ],
             },
           };
         },
