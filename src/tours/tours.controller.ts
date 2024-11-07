@@ -48,7 +48,7 @@ export class ToursController {
     @UploadedFiles() images: { images?: Express.Multer.File[] },
     @Request() req: any,
   ): Promise<TourEntity> {
-    return this.toursService.create(createTourDto, images.images, req.user.id);
+    return await this.toursService.create(createTourDto, images.images, req.user.id);
   }
 
   @Delete(':uuid')
