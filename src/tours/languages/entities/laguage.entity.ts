@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { TourEntity } from 'src/tours/entities/tours.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('languages')
 export class LanguageEntity {
@@ -8,7 +7,4 @@ export class LanguageEntity {
 
   @Column()
   name: string;
-
-  @ManyToMany(() => TourEntity, (tour) => tour.languages)
-  tours: TourEntity[];
 }

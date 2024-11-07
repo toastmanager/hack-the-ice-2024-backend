@@ -1,5 +1,4 @@
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { TourEntity } from 'src/tours/entities/tours.entity';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('age_groups')
 export class AgeGroupEntity {
@@ -11,7 +10,4 @@ export class AgeGroupEntity {
 
   @Column({ nullable: true })
   max_age: number;
-
-  @ManyToMany(() => TourEntity, (tour) => tour.age_groups)
-  tours: TourEntity[];
 }

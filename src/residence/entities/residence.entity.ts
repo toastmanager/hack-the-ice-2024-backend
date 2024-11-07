@@ -1,5 +1,4 @@
-import { TourEntity } from 'src/tours/entities/tours.entity';
-import { Column, Entity, ManyToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Residence {
@@ -19,7 +18,4 @@ export class Residence {
     array: true,
   })
   image_keys: string[];
-
-  @ManyToMany(() => TourEntity, (tour) => tour.residencies)
-  tours: TourEntity;
 }

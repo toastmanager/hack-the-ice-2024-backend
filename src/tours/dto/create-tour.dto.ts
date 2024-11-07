@@ -9,4 +9,7 @@ export class CreateTourDto extends TourBaseDto {
 
   @ApiProperty({})
   residence_id: number;
+
+  @ApiProperty({})
+  age_group_ids: number[];
 }

@@ -3,6 +3,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinTable,
   ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -57,17 +58,20 @@ export class TourEntity {
   @CreateDateColumn()
   created_at: Date;
 
-  @ManyToMany(() => Residence, (residence) => residence.tours)
+  @ManyToMany(() => Residence)
+  @JoinTable()
   residencies: Residence[];
 
-  @ManyToMany(() => AgeGroupEntity, (ageGroup) => ageGroup.tours, {
+  @ManyToMany(() => AgeGroupEntity, {
     nullable: false,
   })
+  @JoinTable()
   age_groups: AgeGroupEntity[];
 
-  @ManyToMany(() => LanguageEntity, (language) => language.tours, {
+  @ManyToMany(() => LanguageEntity, {
     nullable: false,
   })
+  @JoinTable()
   languages: LanguageEntity[];
 
   @ManyToOne(() => UserEntity, (user) => user.tours, {
