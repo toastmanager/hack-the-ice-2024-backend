@@ -9,10 +9,11 @@ import { TourEntity } from './entities/tours.entity';
 import { UsersService } from 'src/users/users.service';
 import { StorageService } from 'src/storage/storage.service';
 import { ViewUserDto } from 'src/users/dto/view-user.dto';
-import { TourViewDto } from './dto/tour-view.dto';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
 import { ResidenceService } from 'src/residence/residence.service';
+import { TourDetailsViewDto } from './dto/tour-details-view.dto';
+import { AgeGroupViewDto } from './age-groups/dto/age-group-view.dto';
 
 @Injectable()
 export class ToursService {
@@ -39,31 +40,51 @@ export class ToursService {
       },
       relations: {
         author: true,
+        residencies: true,
+        age_groups: true,
       },
     });
   }
 
-  async getById(id: string): Promise<TourViewDto> {
+  async getById(id: string): Promise<TourDetailsViewDto> {
     const tour = await this.findById(id);
 
     if (!tour) {
       throw new NotFoundException('');
     }
 
+    const { image_keys, author, residencies, age_groups, ...tourData } = tour;
+
     const image_urls: string[] = [];
-    for (const imageKey of tour.image_keys) {
+    for (const imageKey of image_keys) {
       const presignedUrl = await this.storageService.get(imageKey);
       image_urls.push(presignedUrl);
     }
 
-    const { image_keys, author, ...tourData } = tour;
+    const residenciesDtos = [];
+    for (const residency of [...residencies]) {
+      const residencyDto = await this.residenceService.getById(residency.id);
+      residenciesDtos.push(residencyDto);
+    }
+
+    const ageGroupDtos = [];
+    for (const ageGroup of [...age_groups]) {
+      const ageGroupDto: AgeGroupViewDto = { ...ageGroup };
+      residenciesDtos.push(ageGroupDto);
+    }
 
     const viewUser: ViewUserDto = {
       fullname: author.fullname,
       type: author.type,
     };
 
-    return { image_urls: image_urls, author: viewUser, ...tourData };
+    return {
+      image_urls: image_urls,
+      author: viewUser,
+      residencies: residenciesDtos,
+      age_groups: ageGroupDtos,
+      ...tourData,
+    };
   }
 
   async create(
@@ -88,7 +109,7 @@ export class ToursService {
     return await this.toursRepository.save({
       author: author,
       image_keys: imageKeys,
-      residencies: [residence],
+      residencies: [residence,],
       ...tourData,
     });
   }

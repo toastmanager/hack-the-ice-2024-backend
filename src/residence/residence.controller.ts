@@ -15,6 +15,7 @@ import { ResidenceCreateDto } from './dto/residence-create.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { ResidenceViewDto } from './dto/residence-view.dto';
 
 @Controller('residencies')
 export class ResidenceController {
@@ -43,8 +44,8 @@ export class ResidenceController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.residenceService.findById(+id);
+  async findOne(@Param('id') id: string): Promise<ResidenceViewDto> {
+    return await this.residenceService.getById(+id);
   }
 
   @Delete(':id')

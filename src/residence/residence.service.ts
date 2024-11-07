@@ -21,10 +21,14 @@ export class ResidenceService {
     return await this.residenceRepository.find({});
   }
 
-  async findById(id: number): Promise<ResidenceViewDto | undefined> {
-    const residence = await this.residenceRepository.findOne({
+  async findById(id: number): Promise<Residence | undefined> {
+    return await this.residenceRepository.findOne({
       where: { id: id },
     });
+  }
+
+  async getById(id: number): Promise<ResidenceViewDto | undefined> {
+    const residence = await this.findById(id);
 
     const { image_keys, ...residenceData } = residence;
 
