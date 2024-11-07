@@ -1,8 +1,8 @@
 import { UserEntity } from 'src/users/entities/user.entity';
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { BaseEntity, Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity('tours')
-export class TourEntity {
+export class TourEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
