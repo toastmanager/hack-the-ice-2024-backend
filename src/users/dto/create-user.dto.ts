@@ -20,6 +20,14 @@ export class CreateUserDto extends BaseUserDto {
   @ApiProperty({
     format: 'binary',
     nullable: true,
+    required: false,
   })
   avatarImage?: Express.Multer.File[];
+
+  @ApiProperty({
+    format: 'binary',
+    nullable: true,
+    required: false,
+  })
+  bannerImage?: Express.Multer.File[];
 }

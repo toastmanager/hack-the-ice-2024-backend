@@ -6,6 +6,7 @@ import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity
 import { ResidenceCreateDto } from './dto/residence-create.dto';
 import { UsersService } from 'src/users/users.service';
 import { StorageService } from 'src/storage/storage.service';
+import { ResidenceViewDto } from './dto/residence-view.dto';
 
 @Injectable()
 export class ResidenceService {
@@ -20,10 +21,20 @@ export class ResidenceService {
     return await this.residenceRepository.find({});
   }
 
-  async findById(id: number): Promise<Residence | undefined> {
-    return await this.residenceRepository.findOne({
+  async findById(id: number): Promise<ResidenceViewDto | undefined> {
+    const residence = await this.residenceRepository.findOne({
       where: { id: id },
     });
+
+    const { image_keys, ...residenceData } = residence;
+
+    const image_urls = [];
+    for (const imageKey of image_keys) {
+      const imageUrl = await this.storageService.get(imageKey);
+      image_urls.push(imageUrl);
+    }
+
+    return { ...residenceData, image_urls: image_urls };
   }
 
   async remove(id: number): Promise<void> {

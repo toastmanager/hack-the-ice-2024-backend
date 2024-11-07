@@ -16,7 +16,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 
-@Controller('residence')
+@Controller('residencies')
 export class ResidenceController {
   constructor(private readonly residenceService: ResidenceService) {}
 
@@ -30,7 +30,11 @@ export class ResidenceController {
     @Body() createResidenceDto: ResidenceCreateDto,
     @UploadedFiles() images: { images?: Express.Multer.File[] },
   ) {
-    return await this.residenceService.create(createResidenceDto, images.images, req.id);
+    return await this.residenceService.create(
+      createResidenceDto,
+      images.images,
+      req.id,
+    );
   }
 
   @Get()

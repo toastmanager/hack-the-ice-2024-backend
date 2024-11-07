@@ -3,5 +3,8 @@ import { ResidenceBaseDto } from './residence-base.dto';
 
 export class ResidenceViewDto extends ResidenceBaseDto {
   @ApiProperty({})
-  image_keys: string[];
+  id: number
+  
+  @ApiProperty({})
+  image_urls: string[];
 }
