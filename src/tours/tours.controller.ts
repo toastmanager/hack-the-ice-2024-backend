@@ -16,13 +16,13 @@ import { TourEntity } from './entities/tours.entity';
 import { CreateTourDto } from './dto/create-tour.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UpdateTourDto } from './dto/update-tour.dto';
-import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { StorageService } from 'src/storage/storage.service';
+import { ViewTourDto } from './dto/view-tour.dto';
 
 @Controller('tours')
 export class ToursController {
-  constructor(private readonly toursService: ToursService, private storageService: StorageService) {}
+  constructor(private readonly toursService: ToursService) {}
 
   @Get()
   async findAll(): Promise<TourEntity[]> {
@@ -30,11 +30,11 @@ export class ToursController {
   }
 
   @Get(':uuid')
-  async findById(@Param('uuid') uuid: string): Promise<TourEntity> {
-    const tour = await this.toursService.findById(uuid);
-    for (const imageKey of tour.image_keys) {
-      console.log(await this.storageService.get(imageKey))
-    }
+  @ApiOkResponse({
+    type: ViewTourDto,
+  })
+  async findById(@Param('uuid') uuid: string): Promise<ViewTourDto> {
+    const tour = await this.toursService.getById(uuid);
     return tour;
   }
 

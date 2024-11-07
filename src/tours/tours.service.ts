@@ -11,6 +11,8 @@ import { UpdateTourDto } from './dto/update-tour.dto';
 import { UsersService } from 'src/users/users.service';
 import { StorageService } from 'src/storage/storage.service';
 import { ConfigService } from '@nestjs/config';
+import { ViewTourDto } from './dto/view-tour.dto';
+import { ViewUserDto } from 'src/users/dto/view-user.dto';
 
 @Injectable()
 export class ToursService {
@@ -39,6 +41,29 @@ export class ToursService {
         author: true,
       },
     });
+  }
+
+  async getById(id: string): Promise<ViewTourDto> {
+    const tour = await this.findById(id);
+
+    if (!tour) {
+      throw new NotFoundException('');
+    }
+
+    const image_urls: string[] = [];
+    for (const imageKey of tour.image_keys) {
+      const presignedUrl = await this.storageService.get(imageKey);
+      image_urls.push(presignedUrl);
+    }
+
+    const { image_keys, author, ...tourData } = tour;
+
+    const viewUser: ViewUserDto = {
+      fullname: author.fullname,
+      type: author.type,
+    }
+
+    return { image_urls: image_urls, author: viewUser, ...tourData };
   }
 
   async create(
