@@ -1,7 +1,7 @@
-// src/db/data-source.ts
-
 import { DataSource, DataSourceOptions } from 'typeorm';
 import { SeederOptions } from 'typeorm-extension';
+
+require('dotenv').config();
 
 const dataSourceOptions: DataSourceOptions & SeederOptions = {
     type: 'postgres',

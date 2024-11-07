@@ -1,5 +1,6 @@
 import { UserEntity } from 'src/users/entities/user.entity';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -8,7 +9,7 @@ import {
 } from 'typeorm';
 
 @Entity('tour_reviews')
-export class TourReviewEntity {
+export class TourReviewEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

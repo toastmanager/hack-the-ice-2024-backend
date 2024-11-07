@@ -7,6 +7,10 @@ import { UsersModule } from './users/users.module';
 import { ToursModule } from './tours/tours.module';
 import { StorageModule } from './storage/storage.module';
 import { ResidenceModule } from './residence/residence.module';
+import { DataSource } from 'typeorm';
+import { UserEntity } from './users/entities/user.entity';
+import { TourEntity } from './tours/entities/tours.entity';
+import { TourReviewEntity } from './tours/entities/tour-review.entity';
 
 @Module({
   imports: [
@@ -30,8 +34,32 @@ import { ResidenceModule } from './residence/residence.module';
         synchronize: true,
         logging: true,
       }),
+      dataSourceFactory: async (options) => {
+        const dataSource = await new DataSource(options).initialize();
+        return dataSource;
+      },
       inject: [ConfigService],
     }),
+    import('@adminjs/nestjs').then(({ AdminModule }) =>
+      AdminModule.createAdminAsync({
+        useFactory: async () => {
+          const { AdminJS } = await import('adminjs');
+          const AdminJSTypeorm = await import('@adminjs/typeorm');
+
+          AdminJS.registerAdapter({
+            Resource: AdminJSTypeorm.Resource,
+            Database: AdminJSTypeorm.Database,
+          });
+
+          return {
+            adminJsOptions: {
+              rootPath: '/admin',
+              resources: [UserEntity, TourEntity, TourReviewEntity],
+            },
+          };
+        },
+      }),
+    ),
     AuthModule,
     UsersModule,
     ToursModule,

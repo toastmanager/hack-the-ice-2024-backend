@@ -1,6 +1,7 @@
 import { TourReviewEntity } from 'src/tours/entities/tour-review.entity';
 import { TourEntity } from 'src/tours/entities/tours.entity';
 import {
+  BaseEntity,
   Column,
   CreateDateColumn,
   Entity,
@@ -15,7 +16,7 @@ export enum UserType {
 }
 
 @Entity('users')
-export class UserEntity {
+export class UserEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

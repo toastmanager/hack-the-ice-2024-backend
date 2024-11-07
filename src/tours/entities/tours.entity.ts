@@ -6,6 +6,7 @@ import {
   JoinTable,
   ManyToMany,
   ManyToOne,
+  BaseEntity,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Residence } from '../../residence/entities/residence.entity';
@@ -13,7 +14,7 @@ import { AgeGroupEntity } from '../age-groups/entities/age-group.entity';
 import { LanguageEntity } from '../languages/entities/laguage.entity';
 
 @Entity('tours')
-export class TourEntity {
+export class TourEntity extends BaseEntity {
   @PrimaryGeneratedColumn('uuid')
   uuid: string;
 
