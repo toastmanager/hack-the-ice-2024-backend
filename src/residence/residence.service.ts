@@ -4,12 +4,16 @@ import { Residence } from './entities/residence.entity';
 import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 import { ResidenceCreateDto } from './dto/residence-create.dto';
+import { UsersService } from 'src/users/users.service';
+import { StorageService } from 'src/storage/storage.service';
 
 @Injectable()
 export class ResidenceService {
   constructor(
     @InjectRepository(Residence)
-    private residenceRepository: Repository<Residence>,
+    private readonly residenceRepository: Repository<Residence>,
+    private readonly storageService: StorageService,
+    private readonly usersService: UsersService,
   ) {}
 
   async findAll(): Promise<Residence[] | undefined> {
@@ -33,7 +37,27 @@ export class ResidenceService {
     await this.residenceRepository.update({ id }, residence);
   }
 
-  async create(input: ResidenceCreateDto): Promise<Residence> {
-    return await this.residenceRepository.save(input);
+  async create(
+    input: ResidenceCreateDto,
+    images: Express.Multer.File[],
+    authorId: string,
+  ): Promise<Residence> {
+    const author = await this.usersService.findById(authorId);
+    const { images: _, ...residenceData } = input;
+
+    const imageKeys = [];
+    for (let img of images) {
+      const imageKey = await this.storageService.put(
+        img.originalname,
+        img.buffer,
+      );
+      imageKeys.push(imageKey);
+    }
+
+    return await this.residenceRepository.save({
+      author: author,
+      image_keys: imageKeys,
+      ...residenceData,
+    });
   }
 }
