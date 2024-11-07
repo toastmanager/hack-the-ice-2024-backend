@@ -5,6 +5,7 @@ import config from './config/configuration';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { ToursModule } from './tours/tours.module';
+import { StorageModule } from './storage/storage.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { ToursModule } from './tours/tours.module';
     AuthModule,
     UsersModule,
     ToursModule,
+    StorageModule,
   ],
 })
 export class AppModule {}

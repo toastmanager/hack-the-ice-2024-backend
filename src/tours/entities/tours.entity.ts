@@ -1,5 +1,11 @@
 import { UserEntity } from 'src/users/entities/user.entity';
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('tours')
 export class TourEntity {
@@ -25,7 +31,12 @@ export class TourEntity {
   previous_price: number;
 
   @CreateDateColumn()
-  created_at: Date
+  created_at: Date;
+
+  @Column('text', {
+    array: true,
+  })
+  image_keys: string[];
 
   @ManyToOne(() => UserEntity, (user) => user.tours)
   author: UserEntity;

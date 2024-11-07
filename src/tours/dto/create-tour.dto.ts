@@ -34,7 +34,7 @@ export class CreateTourDto {
   previous_price: number;
 
   @ApiProperty({
-    required: false,
+    format: 'binary'
   })
-  banner_url: string;
+  images: Express.Multer.File[];
 }
