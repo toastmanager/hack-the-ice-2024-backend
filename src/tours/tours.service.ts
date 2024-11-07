@@ -6,13 +6,13 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { TourEntity } from './entities/tours.entity';
-import { CreateTourDto } from './dto/create-tour.dto';
-import { UpdateTourDto } from './dto/update-tour.dto';
+import { UpdateTourDto } from './dto/tour/update-tour.dto';
 import { UsersService } from 'src/users/users.service';
 import { StorageService } from 'src/storage/storage.service';
 import { ConfigService } from '@nestjs/config';
-import { ViewTourDto } from './dto/view-tour.dto';
 import { ViewUserDto } from 'src/users/dto/view-user.dto';
+import { TourViewDto } from './dto/tour/tour-view.dto';
+import { CreateTourDto } from './dto/tour/create-tour.dto';
 
 @Injectable()
 export class ToursService {
@@ -43,7 +43,7 @@ export class ToursService {
     });
   }
 
-  async getById(id: string): Promise<ViewTourDto> {
+  async getById(id: string): Promise<TourViewDto> {
     const tour = await this.findById(id);
 
     if (!tour) {

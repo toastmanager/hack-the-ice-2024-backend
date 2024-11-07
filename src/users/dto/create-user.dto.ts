@@ -8,7 +8,7 @@ export class CreateUserDto extends BaseUserDto {
   email: string;
 
   @ApiProperty({
-    required: false
+    required: false,
   })
   phone: string;
 
@@ -16,4 +16,10 @@ export class CreateUserDto extends BaseUserDto {
     default: 'password1234',
   })
   password: string;
+
+  @ApiProperty({
+    format: 'binary',
+    nullable: true,
+  })
+  avatarImage?: Express.Multer.File[];
 }

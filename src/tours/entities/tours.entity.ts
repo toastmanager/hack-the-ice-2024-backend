@@ -3,9 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  ManyToMany,
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { TourResidence } from '../residence/entities/tour-residence.entity';
+import { AgeGroupEntity } from '../age-groups/entities/age-group.entity';
+import { LanguageEntity } from '../languages/entities/laguage.entity';
 
 @Entity('tours')
 export class TourEntity {
@@ -25,19 +29,49 @@ export class TourEntity {
   days_duration: number;
 
   @Column('int')
+  comfort_score: number;
+
+  @Column('int')
+  activity_score: number;
+
+  @Column('int')
   price: number;
 
   @Column('int')
   previous_price: number;
-
-  @CreateDateColumn()
-  created_at: Date;
 
   @Column('text', {
     array: true,
   })
   image_keys: string[];
 
-  @ManyToOne(() => UserEntity, (user) => user.tours)
+  @Column()
+  residence_comfort: number;
+
+  @Column()
+  motel_duration: string;
+
+  @Column()
+  hotel_duration: string;
+
+  @CreateDateColumn()
+  created_at: Date;
+
+  @ManyToMany(() => TourResidence, (residence) => residence.tours)
+  residencies: TourResidence[];
+
+  @ManyToMany(() => AgeGroupEntity, (ageGroup) => ageGroup.tours, {
+    nullable: false,
+  })
+  age_groups: AgeGroupEntity;
+
+  @ManyToMany(() => LanguageEntity, (language) => language.tours, {
+    nullable: false,
+  })
+  languages: LanguageEntity[];
+
+  @ManyToOne(() => UserEntity, (user) => user.tours, {
+    nullable: false,
+  })
   author: UserEntity;
 }

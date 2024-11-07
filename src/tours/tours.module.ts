@@ -6,6 +6,9 @@ import { TourEntity } from './entities/tours.entity';
 import { UsersModule } from 'src/users/users.module';
 import { TourReviewEntity } from './entities/tour-review.entity';
 import { StorageModule } from 'src/storage/storage.module';
+import { ResidenceService } from './residence/residence.service';
+import { LanguagesService } from './languages/languages.service';
+import { AgeGroupsService } from './age-groups/age-groups.service';
 
 @Module({
   controllers: [ToursController],
@@ -15,6 +18,6 @@ import { StorageModule } from 'src/storage/storage.module';
     StorageModule.register('tours'),
     UsersModule,
   ],
-  providers: [ToursService],
+  providers: [ToursService, AgeGroupsService, ResidenceService, LanguagesService, AgeGroupsService],
 })
 export class ToursModule {}

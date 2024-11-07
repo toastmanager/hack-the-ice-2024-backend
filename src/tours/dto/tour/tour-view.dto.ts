@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ViewUserDto } from 'src/users/dto/view-user.dto';
 import { TourBaseDto } from './tour-base.dto';
 
-export class ViewTourDto extends TourBaseDto {
+export class TourViewDto extends TourBaseDto {
   @ApiProperty({
     default: '',
   })

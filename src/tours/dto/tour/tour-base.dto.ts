@@ -22,6 +22,31 @@ export class TourBaseDto {
   days_duration: number;
 
   @ApiProperty({
+    default: 3
+  })
+  comfort_score: number
+
+  @ApiProperty({
+    default: 3
+  })
+  activity_score: number
+
+  @ApiProperty({
+    default: 3
+  })
+  residence_comfort: number
+
+  @ApiProperty({
+    default: 3
+  })
+  motel_duration: number
+
+  @ApiProperty({
+    default: 3
+  })
+  hotel_duration: number
+
+  @ApiProperty({
     default: 14999,
   })
   price: number;

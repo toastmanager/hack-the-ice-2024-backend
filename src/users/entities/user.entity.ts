@@ -23,6 +23,12 @@ export class UserEntity {
   email: string;
 
   @Column()
+  avatarImageKey: string;
+  
+  @Column()
+  description: string;
+
+  @Column()
   password: string;
 
   @Column()

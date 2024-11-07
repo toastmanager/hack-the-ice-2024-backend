@@ -13,12 +13,12 @@ import {
 } from '@nestjs/common';
 import { ToursService } from './tours.service';
 import { TourEntity } from './entities/tours.entity';
-import { CreateTourDto } from './dto/create-tour.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { UpdateTourDto } from './dto/update-tour.dto';
+import { UpdateTourDto } from './dto/tour/update-tour.dto';
 import { ApiBearerAuth, ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
-import { ViewTourDto } from './dto/view-tour.dto';
+import { CreateTourDto } from './dto/tour/create-tour.dto';
+import { TourViewDto } from './dto/tour/tour-view.dto';
 
 @Controller('tours')
 export class ToursController {
@@ -31,9 +31,9 @@ export class ToursController {
 
   @Get(':uuid')
   @ApiOkResponse({
-    type: ViewTourDto,
+    type: TourViewDto,
   })
-  async findById(@Param('uuid') uuid: string): Promise<ViewTourDto> {
+  async findById(@Param('uuid') uuid: string): Promise<TourViewDto> {
     const tour = await this.toursService.getById(uuid);
     return tour;
   }
