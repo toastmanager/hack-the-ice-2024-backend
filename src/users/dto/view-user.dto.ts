@@ -5,6 +5,11 @@ export class ViewUserDto extends BaseUserDto {
   @ApiProperty({
     required: false,
   })
+  description: string;
+
+  @ApiProperty({
+    required: false,
+  })
   avatar_url?: string | null;
 
   @ApiProperty({

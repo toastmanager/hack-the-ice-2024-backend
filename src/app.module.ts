@@ -57,6 +57,10 @@ import { LanguageEntity } from './tours/languages/entities/laguage.entity';
           return {
             adminJsOptions: {
               rootPath: '/admin',
+              branding: {
+                companyName: 'Я: Твой ориентир',
+                logo: '',
+              },
               resources: [
                 UserEntity,
                 TourEntity,

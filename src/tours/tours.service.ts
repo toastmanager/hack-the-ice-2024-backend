@@ -99,6 +99,8 @@ export class ToursService {
 
     const viewUser: ViewUserDto = {
       fullname: author.fullname,
+      avatar_url: author.avatarImageKey,
+      description: author.description,
       type: author.type,
     };
 
