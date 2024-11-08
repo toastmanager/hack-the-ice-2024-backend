@@ -33,6 +33,30 @@ export class ToursService {
     });
   }
 
+  async getAll(): Promise<any> {
+    const tours = await this.toursRepository.find({
+      relations: {
+        author: true,
+      },
+    });
+
+    const toursDtos = [];
+    for (const tour of tours) {
+      const { image_keys, ...tourData } = tour;
+
+      const image_urls = [];
+      for (const imageKey of image_keys) {
+        image_urls.push(await this.storageService.get(imageKey));
+      }
+      toursDtos.push({
+        image_urls: image_urls,
+        ...tourData,
+      });
+    }
+
+    return toursDtos;
+  }
+
   async findById(id: string): Promise<TourEntity> {
     return await this.toursRepository.findOne({
       where: {
@@ -109,7 +133,7 @@ export class ToursService {
     return await this.toursRepository.save({
       author: author,
       image_keys: imageKeys,
-      residencies: [residence,],
+      residencies: [residence],
       ...tourData,
     });
   }

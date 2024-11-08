@@ -25,8 +25,8 @@ export class ToursController {
   constructor(private readonly toursService: ToursService) {}
 
   @Get()
-  async findAll(): Promise<TourEntity[]> {
-    return this.toursService.findAll();
+  async getAll(): Promise<TourEntity[]> {
+    return this.toursService.getAll();
   }
 
   @Get(':uuid')
