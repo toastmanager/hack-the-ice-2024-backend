@@ -3,10 +3,10 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Residence } from './entities/residence.entity';
 import { Repository } from 'typeorm';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { ResidenceCreateDto } from './dto/residence-create.dto';
+import { CreateResidenceDto } from './dto/residence-create.dto';
 import { UsersService } from 'src/users/users.service';
 import { StorageService } from 'src/storage/storage.service';
-import { ResidenceViewDto } from './dto/residence-view.dto';
+import { ViewResidenceDto } from './dto/view-residence.dto';
 
 @Injectable()
 export class ResidenceService {
@@ -21,13 +21,13 @@ export class ResidenceService {
     return await this.residenceRepository.find({});
   }
 
-  async findById(id: number): Promise<Residence | undefined> {
+  async findById(id: string): Promise<Residence | undefined> {
     return await this.residenceRepository.findOne({
       where: { id: id },
     });
   }
 
-  async getById(id: number): Promise<ResidenceViewDto | undefined> {
+  async getById(id: string): Promise<ViewResidenceDto | undefined> {
     const residence = await this.findById(id);
 
     const { image_keys, ...residenceData } = residence;
@@ -38,22 +38,22 @@ export class ResidenceService {
       image_urls.push(imageUrl);
     }
 
-    return { ...residenceData, image_urls: image_urls };
+    return { ...residenceData, imageUrls: image_urls };
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: string): Promise<void> {
     await this.residenceRepository.delete(id);
   }
 
   async update(
-    id: number,
+    id: string,
     residence: QueryDeepPartialEntity<Residence>,
   ): Promise<void> {
     await this.residenceRepository.update({ id }, residence);
   }
 
   async create(
-    input: ResidenceCreateDto,
+    input: CreateResidenceDto,
     images: Express.Multer.File[],
     authorId: string,
   ): Promise<Residence> {

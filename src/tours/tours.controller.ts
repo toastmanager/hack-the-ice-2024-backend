@@ -14,7 +14,13 @@ import {
 import { ToursService } from './tours.service';
 import { TourEntity } from './entities/tours.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { ApiBearerAuth, ApiConsumes, ApiOkResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
+  ApiOkResponse,
+  ApiProperty,
+} from '@nestjs/swagger';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { TourViewDto } from './dto/tour-view.dto';
 import { CreateTourDto } from './dto/create-tour.dto';
@@ -45,10 +51,17 @@ export class ToursController {
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images' }]))
   async create(
     @Body() createTourDto: CreateTourDto,
-    @UploadedFiles() images: { images?: Express.Multer.File[] },
+    @UploadedFiles()
+    files: {
+      images?: Express.Multer.File[];
+    },
     @Request() req: any,
   ): Promise<TourEntity> {
-    return await this.toursService.create(createTourDto, images.images, req.user.id);
+    return await this.toursService.create(
+      createTourDto,
+      files.images,
+      req.user.id,
+    );
   }
 
   @Delete(':uuid')

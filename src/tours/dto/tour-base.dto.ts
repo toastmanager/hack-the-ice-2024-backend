@@ -1,60 +1,58 @@
 import { ApiProperty } from '@nestjs/swagger';
+import {
+  ArrayMinSize,
+  IsArray,
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsString,
+} from 'class-validator';
 
 export class TourBaseDto {
-  @ApiProperty({
-    default: 'string',
-  })
+  @ApiProperty()
+  @IsString()
   title: string;
 
-  @ApiProperty({
-    default: 'string',
-  })
+  @ApiProperty()
+  @IsString()
   description: string;
 
-  @ApiProperty({
-    default: 'Бурятия',
-  })
+  @ApiProperty()
+  @IsString()
   location: string;
 
-  @ApiProperty({
-    default: 4,
-  })
-  days_duration: number;
+  @ApiProperty()
+  @IsInt()
+  duration: number;
 
-  @ApiProperty({
-    default: 3
-  })
-  comfort_score: number
+  @ApiProperty()
+  @IsInt()
+  comfortScore: number;
 
-  @ApiProperty({
-    default: 3
-  })
-  activity_score: number
+  @ApiProperty()
+  @IsInt()
+  activityScore: number;
 
-  @ApiProperty({
-    default: 3
-  })
-  residence_comfort: number
+  @ApiProperty()
+  @IsInt()
+  residenceComfort: number;
 
-  @ApiProperty({
-    default: 3
-  })
-  motel_duration: string
+  @ApiProperty({})
+  @IsArray()
+  @ArrayMinSize(1)
+  ageGroups: string[];
 
-  @ApiProperty({
-    default: 3
-  })
-  hotel_duration: string
-
-  @ApiProperty({
-    default: 14999,
-  })
+  @ApiProperty()
+  @IsNumber()
   price: number;
 
   @ApiProperty({
     description:
       "null if tour don't have discount or else price should be provided",
     nullable: true,
+    required: false,
   })
-  previous_price: number;
+  @IsOptional()
+  @IsString()
+  previousPrice: number;
 }

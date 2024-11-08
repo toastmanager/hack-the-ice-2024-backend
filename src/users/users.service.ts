@@ -39,7 +39,7 @@ export class UsersService {
     const newTours = [];
     for (const tour of user.tours) {
       const imageUrls = [];
-      for (const imageKey of tour.image_keys) {
+      for (const imageKey of tour.imageKeys) {
         imageUrls.push(await this.toursStorage.get(imageKey));
       }
       newTours.push({

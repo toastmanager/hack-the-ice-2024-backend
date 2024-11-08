@@ -1,9 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResidenceBaseDto } from './residence-base.dto';
+import { ResidenceBaseDto as BaseResidenceDto } from './residence-base.dto';
+import { ArrayMaxSize, ArrayMinSize, IsArray } from 'class-validator';
 
-export class ResidenceCreateDto extends ResidenceBaseDto {
+export class CreateResidenceDto extends BaseResidenceDto {
   @ApiProperty({
     format: 'binary',
   })
+  @IsArray()
+  @ArrayMinSize(1)
+  @ArrayMaxSize(3)
   images: Express.Multer.File[];
 }

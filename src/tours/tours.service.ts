@@ -2,6 +2,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -13,7 +14,6 @@ import { CreateTourDto } from './dto/create-tour.dto';
 import { UpdateTourDto } from './dto/update-tour.dto';
 import { ResidenceService } from 'src/residence/residence.service';
 import { TourDetailsViewDto } from './dto/tour-details-view.dto';
-import { AgeGroupViewDto } from './age-groups/dto/age-group-view.dto';
 
 @Injectable()
 export class ToursService {
@@ -42,10 +42,10 @@ export class ToursService {
 
     const toursDtos = [];
     for (const tour of tours) {
-      const { image_keys, ...tourData } = tour;
+      const { imageKeys, ...tourData } = tour;
 
       const image_urls = [];
-      for (const imageKey of image_keys) {
+      for (const imageKey of imageKeys) {
         image_urls.push(await this.storageService.get(imageKey));
       }
       toursDtos.push({
@@ -65,24 +65,34 @@ export class ToursService {
       relations: {
         author: true,
         residencies: true,
-        age_groups: true,
       },
     });
   }
 
-  async getById(id: string): Promise<TourDetailsViewDto> {
+  async getById(id: string, userId?: string): Promise<TourDetailsViewDto> {
     const tour = await this.findById(id);
 
     if (!tour) {
-      throw new NotFoundException('');
+      throw new NotFoundException('Tour not found');
     }
 
-    const { image_keys, author, residencies, age_groups, ...tourData } = tour;
+    if (!tour.isPublished) {
+      if (userId && userId !== tour.author.id) {
+        throw new UnauthorizedException('Not author of this tour');
+      }
+    }
 
-    const image_urls: string[] = [];
-    for (const imageKey of image_keys) {
+    const {
+      imageKeys,
+      author,
+      residencies,
+      ...tourData
+    } = tour;
+
+    const imageUrls: string[] = [];
+    for (const imageKey of imageKeys) {
       const presignedUrl = await this.storageService.get(imageKey);
-      image_urls.push(presignedUrl);
+      imageUrls.push(presignedUrl);
     }
 
     const residenciesDtos = [];
@@ -91,37 +101,24 @@ export class ToursService {
       residenciesDtos.push(residencyDto);
     }
 
-    const ageGroupDtos = [];
-    for (const ageGroup of [...age_groups]) {
-      const ageGroupDto: AgeGroupViewDto = { ...ageGroup };
-      residenciesDtos.push(ageGroupDto);
-    }
-
-    const viewUser: ViewUserDto = {
-      fullname: author.fullname,
-      avatar_url: author.avatarImageKey,
-      description: author.description,
-      type: author.type,
-    };
+    const authorDto: ViewUserDto = {...author}
 
     return {
-      image_urls: image_urls,
-      author: viewUser,
+      imageUrls: imageUrls,
       residencies: residenciesDtos,
-      age_groups: ageGroupDtos,
+      author: authorDto,
+      residenceComfort: 5,
       ...tourData,
     };
   }
 
   async create(
-    createTourData: CreateTourDto,
+    createTourDto: CreateTourDto,
     images: Express.Multer.File[],
     author_uuid: string,
   ): Promise<TourEntity> {
     const author = await this.usersService.findById(author_uuid);
-    const { images: _, residence_id, ...tourData } = createTourData;
-
-    const residence = await this.residenceService.findById(residence_id);
+    const { images: _, ...tourData } = createTourDto;
 
     const imageKeys = [];
     for (let img of images) {
@@ -135,7 +132,6 @@ export class ToursService {
     return await this.toursRepository.save({
       author: author,
       image_keys: imageKeys,
-      residencies: [residence],
       ...tourData,
     });
   }
@@ -153,7 +149,7 @@ export class ToursService {
       throw new ForbiddenException('Provided user is not author of this tour');
     }
 
-    for (const imageKey of tourToDelete.image_keys) {
+    for (const imageKey of tourToDelete.imageKeys) {
       await this.storageService.delete(imageKey);
     }
 

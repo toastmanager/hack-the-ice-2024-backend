@@ -3,15 +3,13 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinTable,
-  ManyToMany,
   ManyToOne,
   BaseEntity,
   PrimaryGeneratedColumn,
+  OneToMany,
 } from 'typeorm';
 import { Residence } from '../../residence/entities/residence.entity';
-import { AgeGroupEntity } from '../age-groups/entities/age-group.entity';
-import { LanguageEntity } from '../languages/entities/laguage.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('tours')
 export class TourEntity extends BaseEntity {
@@ -28,52 +26,46 @@ export class TourEntity extends BaseEntity {
   location: string;
 
   @Column('int')
-  days_duration: number;
+  duration: number;
 
-  @Column('int')
-  comfort_score: number;
+  @Column('int', { name: 'comfort_score' })
+  comfortScore: number;
 
-  @Column('int')
-  activity_score: number;
+  @Column('int', { name: 'activity_score' })
+  activityScore: number;
 
   @Column('int')
   price: number;
 
-  @Column('int')
-  previous_price: number;
+  @Column('int', { name: 'previous_price', default: 0 })
+  previousPrice: number;
 
   @Column('text', {
     array: true,
+    name: 'image_keys',
   })
-  image_keys: string[];
+  @Exclude()
+  imageKeys: string[];
 
-  @Column()
-  residence_comfort: number;
+  @Column({ name: 'is_published', default: false })
+  @Exclude()
+  isPublished: string;
 
-  @Column()
-  motel_duration: string;
+  @Column({ name: 'is_on_moderation', default: false })
+  @Exclude()
+  isOnModeration: string;
 
-  @Column()
-  hotel_duration: string;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @CreateDateColumn()
-  created_at: Date;
-
-  @ManyToMany(() => Residence)
-  @JoinTable()
+  @OneToMany(() => Residence, (residency) => residency.tour)
   residencies: Residence[];
 
-  @ManyToMany(() => AgeGroupEntity, {
-    nullable: false,
-  })
-  @JoinTable()
-  age_groups: AgeGroupEntity[];
+  @Column('text', { array: true })
+  ageGroups: string[];
 
-  @ManyToMany(() => LanguageEntity, {
-    nullable: false,
-  })
-  @JoinTable()
-  languages: LanguageEntity[];
+  @Column('text', { array: true })
+  languages: string[];
 
   @ManyToOne(() => UserEntity, (user) => user.tours, {
     nullable: false,

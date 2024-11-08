@@ -41,8 +41,11 @@ export class UserEntity extends BaseEntity {
   @Column()
   fullname: string;
 
-  @Column({ default: false })
-  is_verified: boolean;
+  @Column({ name: 'isVerified', default: false })
+  isVerified: boolean;
+
+  @Column({ name: 'isActive' })
+  isActive: boolean;
 
   @Column({
     type: 'enum',
@@ -57,11 +60,11 @@ export class UserEntity extends BaseEntity {
   })
   phone: string;
 
-  @CreateDateColumn()
-  created_at: Date;
+  @CreateDateColumn({ name: 'created_at' })
+  createdAt: Date;
 
-  @UpdateDateColumn()
-  updated_at: Date;
+  @UpdateDateColumn({ name: 'updated_at' })
+  updatedAt: Date;
 
   @OneToMany(() => TourEntity, (tour) => tour.author)
   tours: TourEntity[];

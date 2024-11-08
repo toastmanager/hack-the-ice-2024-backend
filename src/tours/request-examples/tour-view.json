@@ -51,6 +51,7 @@
       "imageUrls": ["http://localhost:8000/images/1"]
     }
   ],
+  "residenciesComfortScore": 3.563,
   "residencies": [
     {
       "name": "Irkutsk city center",

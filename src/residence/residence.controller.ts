@@ -11,11 +11,11 @@ import {
   UploadedFiles,
 } from '@nestjs/common';
 import { ResidenceService } from './residence.service';
-import { ResidenceCreateDto } from './dto/residence-create.dto';
+import { CreateResidenceDto } from './dto/residence-create.dto';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
-import { ResidenceViewDto } from './dto/residence-view.dto';
+import { ViewResidenceDto } from './dto/view-residence.dto';
 
 @Controller('residencies')
 export class ResidenceController {
@@ -28,7 +28,7 @@ export class ResidenceController {
   @UseInterceptors(FileFieldsInterceptor([{ name: 'images' }]))
   async create(
     @Request() req: any,
-    @Body() createResidenceDto: ResidenceCreateDto,
+    @Body() createResidenceDto: CreateResidenceDto,
     @UploadedFiles() images: { images?: Express.Multer.File[] },
   ) {
     return await this.residenceService.create(
@@ -44,14 +44,14 @@ export class ResidenceController {
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<ResidenceViewDto> {
-    return await this.residenceService.getById(+id);
+  async findOne(@Param('id') id: string): Promise<ViewResidenceDto> {
+    return await this.residenceService.getById(id);
   }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   async remove(@Param('id') id: string) {
-    return await this.residenceService.remove(+id);
+    return await this.residenceService.remove(id);
   }
 }

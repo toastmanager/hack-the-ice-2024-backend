@@ -1,11 +1,17 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResidenceViewDto } from '../../residence/dto/residence-view.dto';
+import { ViewResidenceDto } from '../../residence/dto/view-residence.dto';
 import { TourViewDto } from './tour-view.dto';
+import { IsArray, ValidateNested } from 'class-validator';
+import { Type } from 'class-transformer';
 
 export class TourDetailsViewDto extends TourViewDto {
   @ApiProperty({})
-  residencies: ResidenceViewDto[];
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ViewResidenceDto)
+  residencies: ViewResidenceDto[];
 
   @ApiProperty({})
-  age_groups: ResidenceViewDto[];
+  @IsArray()
+  ageGroups: string[];
 }

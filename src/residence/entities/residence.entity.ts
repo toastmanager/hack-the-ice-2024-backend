@@ -1,9 +1,10 @@
-import { BaseEntity, Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { TourEntity } from 'src/tours/entities/tours.entity';
+import { BaseEntity, Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity()
 export class Residence extends BaseEntity {
-  @PrimaryGeneratedColumn()
-  id: number;
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
 
   @Column()
   title: string;
@@ -11,11 +12,14 @@ export class Residence extends BaseEntity {
   @Column()
   description: string;
 
-  @Column()
-  duration: string;
+  @Column('int', { name: 'start_day' })
+  startDay: number;
 
   @Column('text', {
     array: true,
   })
   image_keys: string[];
+
+  @ManyToOne(() => TourEntity, (tour) => tour.residencies)
+  tour: TourEntity
 }
