@@ -10,7 +10,7 @@ import {
 import { AuthService, Token } from './auth.service';
 import { CreateUserDto } from 'src/users/dto/create-user.dto';
 import { JwtAuthGuard } from './guards/jwt.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes } from '@nestjs/swagger';
 import { LoginDto } from './dto/login.dto';
 import { TokenRefreshDto } from './dto/token-refresh.dto';
 import { UsersService } from 'src/users/users.service';
@@ -49,10 +49,12 @@ export class AuthController {
   }
 
   @Post('register')
+  // @ApiConsumes('multipart/form-data')
   async register(
     @Body() user: CreateUserDto,
     @Response({ passthrough: true }) response: any,
   ): Promise<Token> {
+    console.log(user)
     const token = await this.authService.register(user);
 
     await this.setRefreshTokenInCookie(response, token.refresh_token);

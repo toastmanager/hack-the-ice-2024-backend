@@ -82,12 +82,7 @@ export class ToursService {
       }
     }
 
-    const {
-      imageKeys,
-      author,
-      residencies,
-      ...tourData
-    } = tour;
+    const { imageKeys, author, residencies, ...tourData } = tour;
 
     const imageUrls: string[] = [];
     for (const imageKey of imageKeys) {
@@ -101,7 +96,7 @@ export class ToursService {
       residenciesDtos.push(residencyDto);
     }
 
-    const authorDto: ViewUserDto = {...author}
+    const authorDto: ViewUserDto = { ...author };
 
     return {
       imageUrls: imageUrls,
@@ -114,11 +109,20 @@ export class ToursService {
 
   async create(
     createTourDto: CreateTourDto,
-    images: Express.Multer.File[],
-    author_uuid: string,
+    authorId: string,
+    images?: Express.Multer.File[],
+    scheduleImages?: Express.Multer.File[],
+    residenciesImages?: Express.Multer.File[],
   ): Promise<TourEntity> {
-    const author = await this.usersService.findById(author_uuid);
-    const { images: _, ...tourData } = createTourDto;
+    const author = await this.usersService.findById(authorId);
+    const {
+      images: _,
+      scheduleImages: __,
+      residenciesImages: ___,
+      ageGroups: ____,
+      residencies: residenciesString,
+      ...tourData
+    } = createTourDto;
 
     const imageKeys = [];
     for (let img of images) {
@@ -129,11 +133,32 @@ export class ToursService {
       imageKeys.push(imageKey);
     }
 
-    return await this.toursRepository.save({
-      author: author,
-      image_keys: imageKeys,
+    const residenciesEntities = [];
+    let addedImages = 0;
+    const residencies = JSON.parse(`[${residenciesString}]`); // if it works without `[]` than there is mistake with input
+    for (const residency of residencies) {
+      console.log(residency);
+      const createdResidence = await this.residenceService.create(
+        { ...residency, images: [], imagesNum: undefined },
+        residenciesImages.slice(addedImages, addedImages + residency.imagesNum),
+        authorId,
+      );
+      addedImages += residency.imagesNum;
+      residenciesEntities.push(createdResidence);
+    }
+
+    const ageGroups = (createTourDto.ageGroups as unknown as string).split(',');
+    const languages = (createTourDto.languages as unknown as string).split(',');
+    const item = await this.toursRepository.save({
       ...tourData,
+      author: author,
+      imageKeys: imageKeys,
+      residencies: residenciesEntities,
+      ageGroups: ageGroups,
+      languages: languages,
     });
+
+    return item;
   }
 
   async delete(tourId: string, userId: string): Promise<void> {

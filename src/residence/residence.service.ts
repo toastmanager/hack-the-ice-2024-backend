@@ -30,7 +30,7 @@ export class ResidenceService {
   async getById(id: string): Promise<ViewResidenceDto | undefined> {
     const residence = await this.findById(id);
 
-    const { image_keys, ...residenceData } = residence;
+    const { imageKeys: image_keys, ...residenceData } = residence;
 
     const image_urls = [];
     for (const imageKey of image_keys) {
@@ -70,8 +70,7 @@ export class ResidenceService {
     }
 
     return await this.residenceRepository.save({
-      author: author,
-      image_keys: imageKeys,
+      imageKeys: imageKeys,
       ...residenceData,
     });
   }

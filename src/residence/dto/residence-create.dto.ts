@@ -1,8 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ResidenceBaseDto as BaseResidenceDto } from './residence-base.dto';
+import { ResidenceBaseDto } from './residence-base.dto';
 import { ArrayMaxSize, ArrayMinSize, IsArray } from 'class-validator';
 
-export class CreateResidenceDto extends BaseResidenceDto {
+export class CreateResidenceDto extends ResidenceBaseDto {
   @ApiProperty({
     format: 'binary',
   })

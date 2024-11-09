@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { BaseUserDto } from './base-user.dto';
 
 export class CreateUserDto extends BaseUserDto {
@@ -7,7 +7,7 @@ export class CreateUserDto extends BaseUserDto {
   })
   email: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     required: false,
   })
   phone: string;
@@ -17,14 +17,14 @@ export class CreateUserDto extends BaseUserDto {
   })
   password: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     format: 'binary',
     nullable: true,
     required: false,
   })
   avatarImage?: Express.Multer.File[];
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     format: 'binary',
     nullable: true,
     required: false,

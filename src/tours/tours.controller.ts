@@ -48,19 +48,31 @@ export class ToursController {
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
   @ApiConsumes('multipart/form-data')
-  @UseInterceptors(FileFieldsInterceptor([{ name: 'images' }]))
+  @UseInterceptors(
+    FileFieldsInterceptor([
+      { name: 'images' },
+      { name: 'scheduleImages' },
+      { name: 'residenciesImages' },
+    ]),
+  )
   async create(
-    @Body() createTourDto: CreateTourDto,
+    @Body()
+    createTourDto: CreateTourDto,
     @UploadedFiles()
     files: {
       images?: Express.Multer.File[];
+      scheduleImages?: Express.Multer.File[];
+      residenciesImages?: Express.Multer.File[];
     },
     @Request() req: any,
   ): Promise<TourEntity> {
+    console.log(createTourDto);
     return await this.toursService.create(
       createTourDto,
-      files.images,
       req.user.id,
+      files.images,
+      files.scheduleImages,
+      files.residenciesImages,
     );
   }
 

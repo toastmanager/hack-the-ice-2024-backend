@@ -18,7 +18,7 @@ export class Residence extends BaseEntity {
   @Column('text', {
     array: true,
   })
-  image_keys: string[];
+  imageKeys: string[];
 
   @ManyToOne(() => TourEntity, (tour) => tour.residencies)
   tour: TourEntity
